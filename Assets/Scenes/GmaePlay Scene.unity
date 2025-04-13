@@ -776,6 +776,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 687377571675841456, guid: 1750a79856555ef4eabd51ea7a826879, type: 3}
+      propertyPath: m_Offset.x
+      value: 5.78
+      objectReference: {fileID: 0}
+    - target: {fileID: 687377571675841456, guid: 1750a79856555ef4eabd51ea7a826879, type: 3}
+      propertyPath: m_Offset.y
+      value: 6.13
+      objectReference: {fileID: 0}
     - target: {fileID: 2494044529700043267, guid: 1750a79856555ef4eabd51ea7a826879, type: 3}
       propertyPath: m_Name
       value: skeleton rotten
