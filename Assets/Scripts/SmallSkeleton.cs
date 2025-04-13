@@ -8,10 +8,10 @@ using UnityEngine;
 public class SmallSkeleton : MonoBehaviour
 {
     public float walkSpeed = 0.5f;
-    public DetectionZoneSmallSkeleton attackZone;
+    public DetectionZone attackZone;
+    public DetectionZone cliffDetectionZone;
+
     Animator animator;
-
-
     Rigidbody2D rb;
     TouchingDirections touchingDirections;
     Damagable damagable;
@@ -61,6 +61,19 @@ public class SmallSkeleton : MonoBehaviour
         
     }
 
+    public float AttackCooldown
+    {
+        get {
+            return animator.GetFloat(AnimationStrings.attackCooldown);
+        }
+
+        private set
+        {
+            animator.SetFloat(AnimationStrings.attackCooldown, Mathf.Max(value, 0));
+        }
+            
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -74,6 +87,10 @@ public class SmallSkeleton : MonoBehaviour
     {
         HasTarget = attackZone.detectedColliders.Count > 0;
 
+        if (AttackCooldown > 0)
+        {
+            AttackCooldown -= Time.deltaTime;
+        }
     }
 
     private void FixedUpdate()
@@ -114,6 +131,14 @@ public class SmallSkeleton : MonoBehaviour
     public void OnHit(int damage, Vector2 knockback)
     {
         rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
+    }
+
+    public void OnCliffDetected()
+    {
+        if (touchingDirections.IsGrounded)
+        {
+            FlipDirection();
+        }
     }
 
 }
