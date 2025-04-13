@@ -97,14 +97,8 @@ public class Damagable : MonoBehaviour
             LockVelocity = true;
             animator.SetTrigger(AnimationStrings.hitTrigger);
             damageableHit?.Invoke(damage, knockback);
-            CharachterEvents.charachterDamaged.Invoke(gameObject, damage);
-
+            
             return true;
-        }
-
-        if (Health <= 0)
-        {
-            CharachterEvents.charachterDied?.Invoke(gameObject);
         }
 
         return false;
