@@ -94,10 +94,12 @@ public class Damagable : MonoBehaviour
         {
             Health -= damage;
             isInvincible = true;
+
             LockVelocity = true;
             animator.SetTrigger(AnimationStrings.hitTrigger);
             damageableHit?.Invoke(damage, knockback);
-            
+            CharachterEvents.charachterDamaged.Invoke(gameObject, damage);
+
             return true;
         }
 

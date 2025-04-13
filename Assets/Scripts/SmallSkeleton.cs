@@ -82,7 +82,6 @@ public class SmallSkeleton : MonoBehaviour
         damagable = GetComponent<Damagable>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         HasTarget = attackZone.detectedColliders.Count > 0;
