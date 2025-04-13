@@ -2,7 +2,7 @@
 - Project name: Judgement
 - Unity version: Unity 2022.3.61f1
 - Active game object:
-  - Name: BG2
+  - Name: DamageText
   - Tag: Untagged
-  - Layer: Default
+  - Layer: UI
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
