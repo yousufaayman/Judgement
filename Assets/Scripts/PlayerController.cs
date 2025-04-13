@@ -22,6 +22,13 @@ public class PlayerController : MonoBehaviour
     private bool _isRunning = false;
 
     TouchingDirections touchingDirections;
+    private Rigidbody2D rb;
+    private Animator animator;
+
+    public bool IsAlive
+    {
+        get { return animator.GetBool(AnimationStrings.isAlive); }
+    }
 
     public bool IsMoving
     {
@@ -113,9 +120,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private Rigidbody2D rb;
-    private Animator animator;
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -139,9 +143,16 @@ public class PlayerController : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-        IsMoving = moveInput != Vector2.zero;
+        if (IsAlive) 
+        {
+            IsMoving = moveInput != Vector2.zero;
 
-        SetFacingDirection(moveInput);
+            SetFacingDirection(moveInput);
+        }
+        else
+        {
+            IsMoving = false;
+        }
     }
 
     private void SetFacingDirection(Vector2 moveInput)
@@ -185,4 +196,11 @@ public class PlayerController : MonoBehaviour
             animator.SetTrigger(AnimationStrings.attackTrigger);
         }
     }
+
+    public void OnHit(int damage, Vector2 knockback)
+    {
+
+        rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
+    }
+
 }
