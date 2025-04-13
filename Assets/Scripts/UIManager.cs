@@ -24,8 +24,8 @@ public class UIManager : MonoBehaviour
 
     private void OnDisable()
     {
-        CharachterEvents.charachterDamaged+=CharachterTookDamage;
-        CharachterEvents.charachterHealed+=CharachterHealed;
+        CharachterEvents.charachterDamaged-=CharachterTookDamage;
+        CharachterEvents.charachterHealed-=CharachterHealed;
     }
 
     public void CharachterTookDamage(GameObject charachter, int damageRecieved)
