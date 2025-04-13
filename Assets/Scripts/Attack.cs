@@ -12,7 +12,9 @@ public class Attack : MonoBehaviour
        Damagable damagable = collision.GetComponent<Damagable>();
         if (damagable != null) {
 
-            bool gotHit = damagable.Hit(attackDamage, knockback);
+            Vector2 deliveredKnockback = transform.parent.localScale.x > 0 ? knockback : new Vector2(-knockback.x, knockback.y);
+
+            bool gotHit = damagable.Hit(attackDamage, deliveredKnockback);
 
         }
     }

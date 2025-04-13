@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(TouchingDirections))]
+[RequireComponent(typeof(Rigidbody2D), typeof(TouchingDirections), typeof(Damagable))]
 
 public class SmallSkeleton : MonoBehaviour
 {
@@ -14,6 +14,7 @@ public class SmallSkeleton : MonoBehaviour
 
     Rigidbody2D rb;
     TouchingDirections touchingDirections;
+    Damagable damagable;
 
     public enum WalkableDirection { Right, Left }
 
@@ -65,6 +66,7 @@ public class SmallSkeleton : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         touchingDirections = GetComponent<TouchingDirections>();
         animator = GetComponent<Animator>();
+        damagable = GetComponent<Damagable>();
     }
 
     // Update is called once per frame
@@ -80,13 +82,17 @@ public class SmallSkeleton : MonoBehaviour
         {
             FlipDirection();
         }
-        if (CanMove)
+
+        if (!damagable.LockVelocity)
         {
-            rb.velocity = new Vector2(walkSpeed * walkDirectionVector.x, rb.velocity.y);
-        }
-        else
-        {
-            rb.velocity = new Vector2(Mathf.Lerp(rb.velocity.x, 0, walkStopRate), rb.velocity.y);
+            if (CanMove)
+            {
+                rb.velocity = new Vector2(walkSpeed * walkDirectionVector.x, rb.velocity.y);
+            }
+            else
+            {
+                rb.velocity = new Vector2(Mathf.Lerp(rb.velocity.x, 0, walkStopRate), rb.velocity.y);
+            }
         }
     }
 
@@ -105,5 +111,9 @@ public class SmallSkeleton : MonoBehaviour
         }
     }
 
+    public void OnHit(int damage, Vector2 knockback)
+    {
+        rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
+    }
 
 }

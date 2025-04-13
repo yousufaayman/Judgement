@@ -348,7 +348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b65513d02497641adb058cdba6ef13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boolName: isHit
+  boolName: lockVelocity
   valueOnExit: 0
   valueOnEnter: 1
   updateOnStateMachine: 0
@@ -710,8 +710,14 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 1
     m_Controller: {fileID: 9100000}
-  - m_Name: isHit
+  - m_Name: lockVelocity
     m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: hit
+    m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
@@ -1110,7 +1116,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: isHit
+    m_ConditionEvent: hit
     m_EventTreshold: 0
   - m_ConditionMode: 1
     m_ConditionEvent: isAlive
@@ -1128,7 +1134,7 @@ AnimatorStateTransition:
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
-  m_CanTransitionToSelf: 1
+  m_CanTransitionToSelf: 0
 --- !u!1107 &6500538910445197690
 AnimatorStateMachine:
   serializedVersion: 6

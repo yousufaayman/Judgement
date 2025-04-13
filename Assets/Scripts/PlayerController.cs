@@ -4,7 +4,7 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(TouchingDirections))]
+[RequireComponent(typeof(Rigidbody2D), typeof(TouchingDirections), typeof(Damagable))]
 [RequireComponent(typeof(Animator))]
 public class PlayerController : MonoBehaviour
 {
@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     TouchingDirections touchingDirections;
     private Rigidbody2D rb;
     private Animator animator;
+    Damagable damagable;
 
     public bool IsAlive
     {
@@ -120,15 +121,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public bool LockVelocity { get {
-            return animator.GetBool(AnimationStrings.lockVelocity);
-        } }
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         touchingDirections = GetComponent<TouchingDirections>();
+        damagable = GetComponent<Damagable>();
     }
 
     void Start()
@@ -140,7 +138,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!LockVelocity)
+        if (!damagable.LockVelocity)
             rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
         
         animator.SetFloat(AnimationStrings.yvelocity, rb.velocity.y);
@@ -206,7 +204,6 @@ public class PlayerController : MonoBehaviour
 
     public void OnHit(int damage, Vector2 knockback)
     {
-
         rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
     }
 
