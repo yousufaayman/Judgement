@@ -375,7 +375,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e080d22747f9b4f930b09b2a33a445, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damagableHit:
+  damageableHit:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7150287765086052866}
@@ -394,4 +394,4 @@ MonoBehaviour:
   _health: 100
   _isAlive: 1
   isInvincible: 0
-  invincibilityTime: 0.25
+  invincibilityTime: 0.75

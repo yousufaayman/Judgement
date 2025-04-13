@@ -120,6 +120,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public bool LockVelocity { get {
+            return animator.GetBool(AnimationStrings.lockVelocity);
+        } }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -136,8 +140,11 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
+        if (!LockVelocity)
+            rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
+        
         animator.SetFloat(AnimationStrings.yvelocity, rb.velocity.y);
+
     }
 
     public void OnMove(InputAction.CallbackContext context)

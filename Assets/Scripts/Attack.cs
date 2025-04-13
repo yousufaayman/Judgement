@@ -5,14 +5,14 @@ using UnityEngine;
 public class Attack : MonoBehaviour
 {
     public int attackDamage = 10;
-    public Vector2 knockBack = Vector2.zero;
+    public Vector2 knockback = Vector2.zero;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
        Damagable damagable = collision.GetComponent<Damagable>();
         if (damagable != null) {
 
-            bool gotHit = damagable.Hit(attackDamage, knockBack);
+            bool gotHit = damagable.Hit(attackDamage, knockback);
 
         }
     }

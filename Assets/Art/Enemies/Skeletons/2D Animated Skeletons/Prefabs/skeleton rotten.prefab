@@ -91,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackDamage: 10
+  knockback: {x: 0.5, y: 0.5}
 --- !u!1 &2984409236184478496
 GameObject:
   m_ObjectHideFlags: 0
@@ -782,6 +783,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e080d22747f9b4f930b09b2a33a445, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damageableHit:
+    m_PersistentCalls:
+      m_Calls: []
   _maxHealth: 100
   _health: 100
   _isAlive: 1

@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class Damagable : MonoBehaviour
 {
-    public UnityEvent<int, Vector2> damagableHit;
+    public UnityEvent<int, Vector2> damageableHit;
     Animator animator;
 
     public int _maxHealth = 100;
@@ -41,17 +41,6 @@ public class Damagable : MonoBehaviour
 
     [SerializeField]
     private bool isInvincible = false;
-
-    public bool IsHit {
-        get
-        {
-             return animator.GetBool(AnimationStrings.isHit);
-                
-        }
-        private set {
-            animator.SetBool(AnimationStrings.isHit, value);
-        } 
-    }
 
     private float timeSinceHit = 0;
     public  float invincibilityTime = 0.25f;
@@ -92,8 +81,8 @@ public class Damagable : MonoBehaviour
             Health -= damage;
             isInvincible = true;
 
-            IsHit = true;
-            damagableHit?.Invoke(damage, knockback);
+            animator.SetTrigger(AnimationStrings.hitTrigger);
+            damageableHit?.Invoke(damage, knockback);
             
             return true;
         }
