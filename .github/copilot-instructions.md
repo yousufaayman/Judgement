@@ -2,7 +2,7 @@
 - Project name: Judgement
 - Unity version: Unity 2022.3.61f1
 - Active game object:
-  - Name: UIManager
+  - Name: Player
   - Tag: Untagged
-  - Layer: Default
+  - Layer: Player
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
