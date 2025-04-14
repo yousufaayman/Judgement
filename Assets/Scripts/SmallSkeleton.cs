@@ -21,9 +21,14 @@ public class SmallSkeleton : MonoBehaviour
     [SerializeField] private float baseWalkSpeed = 0.5f; 
     [SerializeField] private float maxRageWalkSpeed = 1.5f; 
     [SerializeField] private int baseAttackDamage = 10; 
-    [SerializeField] private int maxRageAttackDamage = 25; 
+    [SerializeField] private int maxRageAttackDamage = 25;
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color rageColor = Color.red;
+
+    [SerializeField] private float rageContributionCooldown = 1.0f;
+    private float rageContributionTimer = 0f;
+
+    [SerializeField] private float rageContributionFactor = 0.1f;
 
     [Header("References")]
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -41,7 +46,7 @@ public class SmallSkeleton : MonoBehaviour
     public enum WalkableDirection { Right, Left }
 
     private WalkableDirection _walkDirection;
-    private Vector2 walkDirectionVector = Vector2.right; 
+    private Vector2 walkDirectionVector = Vector2.right;
 
     public WalkableDirection WalkDirection
     {
@@ -100,6 +105,23 @@ public class SmallSkeleton : MonoBehaviour
         }
     }
 
+    public float GetCurrentRage()
+    {
+        return currentRage;
+    }
+
+    public float GetMaxRage()
+    {
+        return maxRage;
+    }
+
+    public void ApplyGlobalRageInfluence(float globalRageInfluence)
+    {
+        // Cap the influence to prevent feedback loops
+        float cappedInfluence = Mathf.Min(globalRageInfluence, 5f * Time.deltaTime);
+        currentRage = Mathf.Min(maxRage, currentRage + cappedInfluence);
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -121,6 +143,28 @@ public class SmallSkeleton : MonoBehaviour
             damagable.damageableHit.AddListener(OnDamageReceived);
     }
 
+    private void Start()
+    {
+        if (GlobalRageManager.Instance != null)
+        {
+            GlobalRageManager.Instance.RegisterWrathEnemy(this);
+
+            // Initial rage contribution (only once at start)
+            if (RagePercent > 0.2f)
+            {
+                GlobalRageManager.Instance.AddRageFromEnemy(currentRage * rageContributionFactor, maxRage);
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GlobalRageManager.Instance != null)
+        {
+            GlobalRageManager.Instance.UnregisterWrathEnemy(this);
+        }
+    }
+
     void Update()
     {
         HasTarget = attackZone.detectedColliders.Count > 0;
@@ -129,20 +173,37 @@ public class SmallSkeleton : MonoBehaviour
 
         ApplyRageEffects();
 
-        // Handle attack cooldown
         if (AttackCooldown > 0)
         {
             AttackCooldown -= Time.deltaTime;
+        }
+
+        // Update rage contribution timer
+        rageContributionTimer -= Time.deltaTime;
+
+        // Only contribute to global rage on a cooldown timer
+        if (GlobalRageManager.Instance != null && RagePercent > 0.2f && HasTarget && rageContributionTimer <= 0)
+        {
+            // Use a scaled contribution to prevent exponential growth
+            GlobalRageManager.Instance.AddRageFromEnemy(currentRage * rageContributionFactor, maxRage);
+
+            // Reset the timer
+            rageContributionTimer = rageContributionCooldown;
         }
     }
 
     private void UpdateRage()
     {
+        // Decay rage over time
         currentRage = Mathf.Max(0, currentRage - (rageDecayRate * Time.deltaTime));
 
+        // Build rage when seeing target
         if (HasTarget)
         {
-            currentRage = Mathf.Min(maxRage, currentRage + (rageBuildOnSight * Time.deltaTime));
+            // Cap the maximum rage gained per frame to prevent runaway effects
+            float maxRageGainPerFrame = 2f * Time.deltaTime;
+            float rageGain = Mathf.Min(rageBuildOnSight * Time.deltaTime, maxRageGainPerFrame);
+            currentRage = Mathf.Min(maxRage, currentRage + rageGain);
         }
     }
 
@@ -201,11 +262,15 @@ public class SmallSkeleton : MonoBehaviour
     {
         rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
 
-        currentRage = Mathf.Min(maxRage, currentRage + rageBuildOnDamage);
+        // Cap rage gain from damage to prevent extreme spikes
+        float rageGain = Mathf.Min(rageBuildOnDamage, maxRage * 0.25f);
+        currentRage = Mathf.Min(maxRage, currentRage + rageGain);
 
+        // Additional rage when low health
         if (damagable.Health < damagable.MaxHealth * 0.3f)
         {
-            currentRage = Mathf.Min(maxRage, currentRage + rageBuildOnDamage * 0.5f);
+            float lowHealthRageBonus = Mathf.Min(rageBuildOnDamage * 0.5f, maxRage * 0.1f);
+            currentRage = Mathf.Min(maxRage, currentRage + lowHealthRageBonus);
         }
     }
 

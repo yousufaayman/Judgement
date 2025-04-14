@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
         private set
         {
             _isMoving = value;
-            if (animator != null) // Add null check
+            if (animator != null)    
                 animator.SetBool(AnimationStrings.isMoving, value);
         }
     }
@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
         private set
         {
             _isRunning = value;
-            if (animator != null) // Add null check
+            if (animator != null)    
                 animator.SetBool(AnimationStrings.isRunning, value);
         }
     }
@@ -132,8 +132,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        // Force upright rotation at start
-        rb.freezeRotation = true; // This is equivalent to freezing Z rotation in 2D
+        rb.freezeRotation = true;          
     }
 
     void FixedUpdate()
@@ -162,7 +161,6 @@ public class PlayerController : MonoBehaviour
 
     private void SetFacingDirection(Vector2 moveInput)
     {
-        // Only change direction if there's horizontal movement
         if (moveInput.x > 0 && !IsFacingRight)
         {
             IsFacingRight = true;
