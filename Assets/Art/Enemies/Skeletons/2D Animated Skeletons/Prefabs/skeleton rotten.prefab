@@ -850,8 +850,22 @@ MonoBehaviour:
   walkSpeed: 0.5
   attackZone: {fileID: 4813474066702850324}
   cliffDetectionZone: {fileID: 3732314489464738003}
-  _hasTarget: 0
   walkStopRate: 0.6
+  currentRage: 0
+  maxRage: 100
+  rageDecayRate: 2
+  rageBuildOnDamage: 20
+  rageBuildOnSight: 5
+  baseWalkSpeed: 0.5
+  maxRageWalkSpeed: 1.5
+  baseAttackDamage: 5
+  maxRageAttackDamage: 15
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  rageColor: {r: 1, g: 0, b: 0, a: 1}
+  rageContributionCooldown: 1
+  rageContributionFactor: 0.1
+  spriteRenderer: {fileID: 0}
+  _hasTarget: 0
 --- !u!114 &3706777152302289088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -882,7 +896,7 @@ MonoBehaviour:
   wallDistance: 0.2
   ceilingDistance: 0.05
   _isGrounded: 0
-  _isOnWall: 0
+  _isOnWall: 1
   _isOnCeiling: 0
 --- !u!114 &6902326516174089821
 MonoBehaviour:

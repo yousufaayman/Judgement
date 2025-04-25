@@ -117,9 +117,25 @@ public class SmallSkeleton : MonoBehaviour
 
     public void ApplyGlobalRageInfluence(float globalRageInfluence)
     {
-        // Cap the influence to prevent feedback loops
-        float cappedInfluence = Mathf.Min(globalRageInfluence, 5f * Time.deltaTime);
-        currentRage = Mathf.Min(maxRage, currentRage + cappedInfluence);
+        float rageToAdd = (0.5f + globalRageInfluence * 5f);
+
+        float oldRage = currentRage;
+        currentRage = Mathf.Min(maxRage, currentRage + rageToAdd);
+
+        if (currentRage > oldRage + 2f && spriteRenderer != null)
+        {
+            StartCoroutine(FlashRageEffect());
+        }
+    }
+
+    private IEnumerator FlashRageEffect()
+    {
+        if (spriteRenderer == null) yield break;
+
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        spriteRenderer.color = originalColor;
     }
 
     private void Awake()
@@ -149,7 +165,6 @@ public class SmallSkeleton : MonoBehaviour
         {
             GlobalRageManager.Instance.RegisterWrathEnemy(this);
 
-            // Initial rage contribution (only once at start)
             if (RagePercent > 0.2f)
             {
                 GlobalRageManager.Instance.AddRageFromEnemy(currentRage * rageContributionFactor, maxRage);
@@ -178,29 +193,29 @@ public class SmallSkeleton : MonoBehaviour
             AttackCooldown -= Time.deltaTime;
         }
 
-        // Update rage contribution timer
         rageContributionTimer -= Time.deltaTime;
 
-        // Only contribute to global rage on a cooldown timer
         if (GlobalRageManager.Instance != null && RagePercent > 0.2f && HasTarget && rageContributionTimer <= 0)
         {
-            // Use a scaled contribution to prevent exponential growth
             GlobalRageManager.Instance.AddRageFromEnemy(currentRage * rageContributionFactor, maxRage);
 
-            // Reset the timer
             rageContributionTimer = rageContributionCooldown;
         }
     }
 
     private void UpdateRage()
     {
-        // Decay rage over time
-        currentRage = Mathf.Max(0, currentRage - (rageDecayRate * Time.deltaTime));
+        float globalRageFactor = 1.0f;
+        if (GlobalRageManager.Instance != null)
+        {
+            globalRageFactor = Mathf.Max(0.5f, GlobalRageManager.Instance.NormalizedRage);
+        }
 
-        // Build rage when seeing target
+        float adjustedDecayRate = rageDecayRate * (2.0f - globalRageFactor);
+        currentRage = Mathf.Max(0, currentRage - (adjustedDecayRate * Time.deltaTime));
+
         if (HasTarget)
         {
-            // Cap the maximum rage gained per frame to prevent runaway effects
             float maxRageGainPerFrame = 2f * Time.deltaTime;
             float rageGain = Mathf.Min(rageBuildOnSight * Time.deltaTime, maxRageGainPerFrame);
             currentRage = Mathf.Min(maxRage, currentRage + rageGain);
@@ -262,15 +277,19 @@ public class SmallSkeleton : MonoBehaviour
     {
         rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
 
-        // Cap rage gain from damage to prevent extreme spikes
         float rageGain = Mathf.Min(rageBuildOnDamage, maxRage * 0.25f);
         currentRage = Mathf.Min(maxRage, currentRage + rageGain);
 
-        // Additional rage when low health
         if (damagable.Health < damagable.MaxHealth * 0.3f)
         {
             float lowHealthRageBonus = Mathf.Min(rageBuildOnDamage * 0.5f, maxRage * 0.1f);
             currentRage = Mathf.Min(maxRage, currentRage + lowHealthRageBonus);
+        }
+
+        if (GlobalRageManager.Instance != null)
+        {
+            GlobalRageManager.Instance.AddRageFromEnemy(currentRage * rageContributionFactor * 2f, maxRage);
+            rageContributionTimer = rageContributionCooldown * 0.5f;
         }
     }
 
@@ -286,4 +305,15 @@ public class SmallSkeleton : MonoBehaviour
             FlipDirection();
         }
     }
+    
+    public void SynchronizeWithGlobalRage(float normalizedGlobalRage)
+    {
+        float maxAllowedRage = maxRage * Mathf.Min(normalizedGlobalRage * 1.5f, 1.0f);
+
+        if (currentRage > maxAllowedRage)
+        {
+            currentRage = Mathf.Max(currentRage - (rageDecayRate * 5f * Time.deltaTime), maxAllowedRage);
+        }
+    }
+
 }

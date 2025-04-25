@@ -14,11 +14,11 @@ public class GlobalRageManager : MonoBehaviour
     [Header("Rage Settings")]
     [SerializeField] private float _globalRage = 0f;
     [SerializeField] private float maxRage = 100f;
-    [SerializeField] private float passiveRageBuildupRate = 0.5f;          
+    [SerializeField] private float passiveRageBuildupRate = 0.5f;
 
     [Header("Rage Influence")]
-    [SerializeField] private float individualToGlobalRageFactor = 0.2f;          
-    [SerializeField] private float globalToIndividualRageFactor = 0.3f;        
+    [SerializeField] private float individualToGlobalRageFactor = 0.2f;
+    [SerializeField] private float globalToIndividualRageFactor = 0.3f;
 
     [SerializeField] private float maxRageContributionPerFrame = 5f;
 
@@ -26,9 +26,9 @@ public class GlobalRageManager : MonoBehaviour
     private float rageContributionThisFrame = 0f;
 
     [Header("Rage Decay Settings")]
-    [SerializeField] private float rageDecayRate = 3f;     
-    [SerializeField] private float rageDecayDelay = 5f;       
-    private float timeSinceLastRageIncrease = 0f;        
+    [SerializeField] private float rageDecayRate = 3f;
+    [SerializeField] private float rageDecayDelay = 5f;
+    private float timeSinceLastRageIncrease = 0f;
 
     public float RageDecayDelay
     {
@@ -44,11 +44,20 @@ public class GlobalRageManager : MonoBehaviour
         private set
         {
             float oldValue = _globalRage;
-            _globalRage = Mathf.Clamp(value, 0, maxRage);
+
+            // Add special case for very small values
+            if (value < maxRage * 0.01f)
+            {
+                _globalRage = 0f;  // Force to absolute zero for very small values
+            }
+            else
+            {
+                _globalRage = Mathf.Clamp(value, 0, maxRage);
+            }
 
             if (oldValue != _globalRage)
             {
-                onRageChanged.Invoke(_globalRage / maxRage);     
+                onRageChanged.Invoke(_globalRage / maxRage);
             }
         }
     }
@@ -83,7 +92,7 @@ public class GlobalRageManager : MonoBehaviour
     {
         bool rageIncreased = false;
 
-        if (passiveRageBuildupRate > 0 && GlobalRage < maxRage * 0.2f)
+        if (passiveRageBuildupRate > 0 && GlobalRage < maxRage * 0.1f)
         {
             GlobalRage += passiveRageBuildupRate * Time.deltaTime;
             rageIncreased = true;
@@ -100,8 +109,14 @@ public class GlobalRageManager : MonoBehaviour
 
         if (timeSinceLastRageIncrease > rageDecayDelay)
         {
-            GlobalRage -= rageDecayRate * Time.deltaTime;
+            GlobalRage -= rageDecayRate * Time.deltaTime * 1.5f;
         }
+        else
+        {
+            GlobalRage -= rageDecayRate * 0.2f * Time.deltaTime;
+        }
+
+        CheckForCompleteRageReset();
 
         UpdateWrathEnemiesRage();
 
@@ -114,15 +129,17 @@ public class GlobalRageManager : MonoBehaviour
 
         if (character.CompareTag("Player"))
         {
-            rageToAdd = Mathf.Min(damage * 0.08f, maxRage * 0.1f);
+            rageToAdd = Mathf.Min(damage * 0.1f, maxRage * 0.15f);
         }
         else
         {
-            rageToAdd = Mathf.Min(damage * 0.1f, maxRage * 0.05f);
+            rageToAdd = Mathf.Min(damage * 0.12f, maxRage * 0.08f);
         }
 
         GlobalRage += rageToAdd;
         timeSinceLastRageIncrease = 0f;
+
+        UpdateWrathEnemiesRage();
     }
 
     public void FindAllWrathEnemies()
@@ -174,18 +191,53 @@ public class GlobalRageManager : MonoBehaviour
 
     private void UpdateWrathEnemiesRage()
     {
-        float maxInfluencePerEnemy = globalToIndividualRageFactor * 0.1f;
+        float currentGlobalRage = NormalizedRage;
 
         foreach (SmallSkeleton enemy in wrathEnemies)
         {
             if (enemy != null)
             {
-                float influence = Mathf.Min(
-                    NormalizedRage * globalToIndividualRageFactor,
-                    maxInfluencePerEnemy
-                );
+                float rageEffect = Mathf.Pow(currentGlobalRage, 1.5f) * globalToIndividualRageFactor;
 
-                enemy.ApplyGlobalRageInfluence(influence);
+                if (currentGlobalRage > 0.1f)
+                {
+                    float influenceAmount = 0.5f + (rageEffect * 5f * Time.deltaTime);
+                    enemy.ApplyGlobalRageInfluence(influenceAmount);
+                }
+                else
+                {
+                    enemy.SynchronizeWithGlobalRage(currentGlobalRage);
+                }
+            }
+        }
+    }
+
+    private void CheckForCompleteRageReset()
+    {
+        if (GlobalRage < maxRage * 0.05f)
+        {
+            bool allEnemiesCalm = true;
+            float totalEnemyRage = 0f;
+
+            foreach (SmallSkeleton enemy in wrathEnemies)
+            {
+                if (enemy != null)
+                {
+                    float normalizedEnemyRage = enemy.GetCurrentRage() / enemy.GetMaxRage();
+
+                    if (normalizedEnemyRage > 0.01f)
+                    {
+                        allEnemiesCalm = false;
+                        break;
+                    }
+
+                    totalEnemyRage += normalizedEnemyRage;
+                }
+            }
+
+            if (allEnemiesCalm && timeSinceLastRageIncrease > rageDecayDelay * 1.5f)
+            {
+                GlobalRage = 0f;
             }
         }
     }
