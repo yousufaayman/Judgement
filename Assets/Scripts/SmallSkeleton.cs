@@ -30,7 +30,6 @@ public class SmallSkeleton : MonoBehaviour
 
     [SerializeField] private float rageContributionFactor = 0.1f;
 
-    [Header("References")]
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     private float RagePercent => currentRage / maxRage;

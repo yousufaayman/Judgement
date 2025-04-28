@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 903145433707817287}
   m_Layer: 7
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -395,7 +395,7 @@ MonoBehaviour:
   _health: 100
   _isAlive: 1
   isInvincible: 0
-  invincibilityTime: 0.75
+  invincibilityTime: 0.25
 --- !u!1 &7633375402637651769
 GameObject:
   m_ObjectHideFlags: 0

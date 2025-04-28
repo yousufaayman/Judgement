@@ -2,7 +2,7 @@
 - Project name: Judgement
 - Unity version: Unity 2022.3.61f1
 - Active game object:
-  - Name: Enemies
+  - Name: Background
   - Tag: Untagged
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

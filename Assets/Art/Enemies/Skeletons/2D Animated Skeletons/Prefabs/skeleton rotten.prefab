@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6de05af1efac7c84d82050b0e3f35486, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackDamage: 10
+  attackDamage: 5
   knockback: {x: 0.5, y: 0.5}
 --- !u!1 &2984409236184478496
 GameObject:
@@ -132,7 +132,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2984409236184478496}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -157,7 +157,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 5.76, y: 6.13}
+  m_Offset: {x: 5.78, y: 6.13}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -354,11 +354,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalScale.z
@@ -366,15 +366,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -5.0784636
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.31164765
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.42023277
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalRotation.w
@@ -382,15 +382,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 0f6639ad26652b94899a70bfa1ad30c5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -853,7 +853,7 @@ MonoBehaviour:
   walkStopRate: 0.6
   currentRage: 0
   maxRage: 100
-  rageDecayRate: 2
+  rageDecayRate: 0.5
   rageBuildOnDamage: 20
   rageBuildOnSight: 5
   baseWalkSpeed: 0.5
@@ -879,7 +879,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   castFilter:
-    useTriggers: 0
+    useTriggers: 1
     useLayerMask: 1
     useDepth: 0
     useOutsideDepth: 0

@@ -16,7 +16,7 @@ public class GlobalRageManager : MonoBehaviour
     [SerializeField] private float maxRage = 100f;
     [SerializeField] private float passiveRageBuildupRate = 0.5f;
 
-    [Header("Rage Influence")]
+    [Header("Rage Effect")]
     [SerializeField] private float individualToGlobalRageFactor = 0.2f;
     [SerializeField] private float globalToIndividualRageFactor = 0.3f;
 
@@ -25,7 +25,7 @@ public class GlobalRageManager : MonoBehaviour
     [SerializeField] private float diminishingReturnsFactor = 0.8f;
     private float rageContributionThisFrame = 0f;
 
-    [Header("Rage Decay Settings")]
+    [Header("Rage Decay")]
     [SerializeField] private float rageDecayRate = 3f;
     [SerializeField] private float rageDecayDelay = 5f;
     private float timeSinceLastRageIncrease = 0f;
@@ -45,10 +45,9 @@ public class GlobalRageManager : MonoBehaviour
         {
             float oldValue = _globalRage;
 
-            // Add special case for very small values
             if (value < maxRage * 0.01f)
             {
-                _globalRage = 0f;  // Force to absolute zero for very small values
+                _globalRage = 0f;          
             }
             else
             {
