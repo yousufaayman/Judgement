@@ -859,7 +859,7 @@ MonoBehaviour:
   baseWalkSpeed: 0.5
   maxRageWalkSpeed: 1.5
   baseAttackDamage: 5
-  maxRageAttackDamage: 15
+  maxRageAttackDamage: 10
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   rageColor: {r: 1, g: 0, b: 0, a: 1}
   rageContributionCooldown: 1

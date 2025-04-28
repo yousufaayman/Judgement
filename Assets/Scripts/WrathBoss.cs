@@ -11,7 +11,6 @@ public class WrathBoss : MonoBehaviour
 
     [Header("Attack Settings")]
     public float attackCooldown = 1.5f;              
-    public float hitboxDuration = 0.5f;           
 
     [Header("Movement")]
     public float moveSpeed = 3f;
@@ -43,9 +42,6 @@ public class WrathBoss : MonoBehaviour
         if (AttackCooldown > 0f)
             AttackCooldown -= Time.deltaTime;
 
-        if (isAttacking)
-            return;
-
         if (touchingDirections.IsGrounded && touchingDirections.IsOnWall)
             FlipDirection();
 
@@ -54,7 +50,7 @@ public class WrathBoss : MonoBehaviour
 
         animator.SetBool(AnimationStrings.hasTarget, inChaseZone || inHitZone);
 
-        if (inHitZone)
+        if (inHitZone && !isAttacking)
         {
             FacePlayer();
             HandleAttackStance();
@@ -91,13 +87,16 @@ public class WrathBoss : MonoBehaviour
     IEnumerator AttackRoutine()
     {
         isAttacking = true;
-
-        AttackCooldown = attackCooldown;
-
         animator.SetTrigger(AnimationStrings.attackTrigger);
-
-        yield return new WaitForSeconds(attackCooldown);
-
+        
+        // Wait for the initial hit to land (assuming it's about 0.2 seconds into the animation)
+        yield return new WaitForSeconds(0.2f);
+        
+        // Set the cooldown after the initial hit
+        AttackCooldown = attackCooldown;
+        
+        // Wait for the remaining cooldown time
+        yield return new WaitForSeconds(attackCooldown - 0.2f);
         isAttacking = false;
     }
 

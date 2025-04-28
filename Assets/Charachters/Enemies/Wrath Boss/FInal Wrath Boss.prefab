@@ -422,11 +422,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  _maxHealth: 100
-  _health: 200
+  _maxHealth: 150
+  _health: 150
   _isAlive: 1
   isInvincible: 0
-  invincibilityTime: 0.25
+  invincibilityTime: 0.75
 --- !u!114 &8703060727049414636
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -442,9 +442,8 @@ MonoBehaviour:
   playerDetectionZone: {fileID: 1925624465235584076}
   hitboxDetectionZone: {fileID: 2249832636477290083}
   cliffDetectionZone: {fileID: 5002823166949764858}
-  attackCooldown: 1
-  hitboxDuration: 0.5
-  moveSpeed: 3
+  attackCooldown: 1.5
+  moveSpeed: 2
 --- !u!1 &5121186315713883176
 GameObject:
   m_ObjectHideFlags: 0

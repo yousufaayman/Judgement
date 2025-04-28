@@ -106,4 +106,15 @@ public class Damagable : MonoBehaviour
         return false;
 
     }
+
+    public void Heal(int healthRestore)
+    {
+        if (IsAlive)
+        {
+            int maxHeal = Mathf.Max(MaxHealth - Health, 0);
+            int actualHeal = Mathf.Min(maxHeal, healthRestore);
+            Health += actualHeal;
+            CharachterEvents.charachterHealed(gameObject, actualHeal);
+        }
+    }
 }
