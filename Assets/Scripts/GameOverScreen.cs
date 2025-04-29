@@ -1,6 +1,8 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameOverManager : MonoBehaviour
 {
@@ -10,15 +12,17 @@ public class GameOverManager : MonoBehaviour
     public RectTransform titleTextRect;
     public TextMeshProUGUI titleText;
 
-    // Score UI elements
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI killsText;
-    public TextMeshProUGUI timeText;
-    public TextMeshProUGUI bonusText;
+
+    public Button restartButton;
+    public Button exitButton;
 
     private Damagable playerDamagable;
     private bool endGameSequenceStarted = false;
     private bool isLevelCompleted = false;
+
+    private int killsCount;
+    private float timeTaken;
 
     void Start()
     {
@@ -35,8 +39,43 @@ public class GameOverManager : MonoBehaviour
         if (playerDamagable == null)
             Debug.LogWarning("GameOverManager: Could not find PlayerController with Damagable in scene.");
 
-        // Subscribe to character events for tracking boss death
         CharachterEvents.charachterDamaged += OnCharacterDamaged;
+
+        SetupButtons();
+    }
+
+    private void SetupButtons()
+    {
+        if (restartButton != null)
+        {
+            restartButton.onClick.AddListener(RestartLevel);
+        }
+        else
+        {
+            Debug.LogWarning("GameOverManager: Restart button not assigned in Inspector.");
+        }
+
+        if (exitButton != null)
+        {
+            exitButton.onClick.AddListener(ReturnToMainMenu);
+        }
+        else
+        {
+            Debug.LogWarning("GameOverManager: Exit button not assigned in Inspector.");
+        }
+    }
+
+    public void RestartLevel()
+    {
+        Time.timeScale = 1f;    
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void ReturnToMainMenu()
+    {
+        Time.timeScale = 1f;    
+        SceneManager.LoadScene("MainMenu");
+
     }
 
     private void OnDestroy()
@@ -46,7 +85,6 @@ public class GameOverManager : MonoBehaviour
 
     void Update()
     {
-        // Check for player death
         if (!endGameSequenceStarted && playerDamagable != null && !playerDamagable.IsAlive)
         {
             StartEndGameSequence(false);
@@ -55,7 +93,6 @@ public class GameOverManager : MonoBehaviour
 
     private void OnCharacterDamaged(GameObject character, int damage)
     {
-        // Check if this was a boss being killed
         if (!endGameSequenceStarted && !character.CompareTag("Player"))
         {
             WrathBoss boss = character.GetComponent<WrathBoss>();
@@ -63,10 +100,8 @@ public class GameOverManager : MonoBehaviour
 
             if (boss != null && bossDamagable != null && !bossDamagable.IsAlive)
             {
-                // Boss died, mark level as completed
                 StartEndGameSequence(true);
 
-                // Notify score manager that boss was killed
                 if (ScoreManager.Instance != null)
                 {
                     ScoreManager.Instance.EnemyKilled(character);
@@ -90,16 +125,14 @@ public class GameOverManager : MonoBehaviour
         {
             endGamePanel.SetActive(true);
 
-            // Set appropriate title text
             if (titleText != null)
             {
                 titleText.text = isLevelCompleted ? "LEVEL COMPLETE" : "GAME OVER";
                 titleText.color = isLevelCompleted ?
-                    new Color(0.1f, 0.8f, 0.2f, 0) :  // Green for complete
-                    new Color(0.8f, 0.1f, 0.1f, 0);   // Red for game over
+                    new Color(0.1f, 0.8f, 0.2f, 0) :     
+                    new Color(0.8f, 0.1f, 0.1f, 0);       
             }
 
-            // Update the score UI elements
             UpdateScoreUI();
 
             if (titleTextRect != null)
@@ -108,14 +141,28 @@ public class GameOverManager : MonoBehaviour
                 StartCoroutine(BreathingEffect());
             }
 
-            // Show/hide bonus text based on level completion
-            if (bonusText != null)
-            {
-                bonusText.gameObject.SetActive(isLevelCompleted);
-            }
         }
 
+        StoreGameData();
+
         Time.timeScale = 0f;
+    }
+
+    private void StoreGameData()
+    {
+        if (ScoreManager.Instance != null)
+        {
+            killsCount = ScoreManager.Instance.GetKills();
+            timeTaken = ScoreManager.Instance.GetTimeTaken();
+
+        }
+    }
+
+    private void SaveToBackend()
+    {
+        Debug.Log("Saved to backend - Score: " + ScoreManager.Instance.GetScore() +
+                  ", Kills: " + killsCount +
+                  ", Time: " + FormatTime(timeTaken));
     }
 
     private void UpdateScoreUI()
@@ -124,18 +171,6 @@ public class GameOverManager : MonoBehaviour
         {
             if (scoreText != null)
                 scoreText.text = "Score: " + ScoreManager.Instance.GetScore().ToString();
-
-            if (killsText != null)
-                killsText.text = "Enemies Slain: " + ScoreManager.Instance.GetKills().ToString();
-
-            if (timeText != null)
-            {
-                float timeTaken = ScoreManager.Instance.GetTimeTaken();
-                timeText.text = "Time: " + FormatTime(timeTaken);
-            }
-
-            if (bonusText != null && isLevelCompleted)
-                bonusText.text = "Boss Bonus: +2000";
         }
     }
 
@@ -207,7 +242,6 @@ public class GameOverManager : MonoBehaviour
         }
     }
 
-    // For simulation/testing
     public void SimulateEndGame(bool isLevelComplete)
     {
         if (!endGameSequenceStarted)

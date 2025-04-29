@@ -6,6 +6,7 @@ using UnityEngine.Events;
 public class Damagable : MonoBehaviour
 {
     public UnityEvent<int, Vector2> damageableHit;
+    public UnityEvent<int, int> healthChanged;
     Animator animator;
 
     public int _maxHealth = 100;
@@ -29,6 +30,9 @@ public class Damagable : MonoBehaviour
 
         set { 
             _health = value;
+
+            healthChanged?.Invoke(_health, _maxHealth);
+
             if (_health <= 0)
             {
                 IsAlive = false;
