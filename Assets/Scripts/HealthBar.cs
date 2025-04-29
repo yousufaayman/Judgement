@@ -42,7 +42,7 @@ public class HealthBar : MonoBehaviour
     private void OnPLayerHealthChanged(int newHealth, int maxHealth)
     {
         healthSlider.value = CalculateSliderPercentage(newHealth, maxHealth);
-        healthBarText.text = "HP " + newHealth + " / " + maxHealth;
+        healthBarText.text = "HP   " + newHealth + " / " + maxHealth;
     }
 
     void Update()
