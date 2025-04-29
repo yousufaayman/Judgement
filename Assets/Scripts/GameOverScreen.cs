@@ -2,63 +2,148 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
-public class GameOverScreen : MonoBehaviour
+public class GameOverManager : MonoBehaviour
 {
-    public GameObject gameOverPanel;
-    public float deathDelay = 1.5f;
-    public RectTransform gameOverTextRect;
-    public TextMeshProUGUI gameOverText;
+    public GameObject endGamePanel;
+    public float displayDelay = 1.5f;
+
+    public RectTransform titleTextRect;
+    public TextMeshProUGUI titleText;
+
+    // Score UI elements
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI killsText;
+    public TextMeshProUGUI timeText;
+    public TextMeshProUGUI bonusText;
 
     private Damagable playerDamagable;
-    private bool gameOverSequenceStarted = false;
+    private bool endGameSequenceStarted = false;
+    private bool isLevelCompleted = false;
 
     void Start()
     {
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
+        if (endGamePanel != null)
+            endGamePanel.SetActive(false);
 
-        if (gameOverText == null && gameOverTextRect != null)
-            gameOverText = gameOverTextRect.GetComponent<TextMeshProUGUI>();
+        if (titleText == null && titleTextRect != null)
+            titleText = titleTextRect.GetComponent<TextMeshProUGUI>();
 
         var player = FindObjectOfType<PlayerController>();
         if (player != null)
             playerDamagable = player.GetComponent<Damagable>();
 
         if (playerDamagable == null)
-            Debug.LogWarning("GameOverScreen: Could not find PlayerController with Damagable in scene.");
+            Debug.LogWarning("GameOverManager: Could not find PlayerController with Damagable in scene.");
+
+        // Subscribe to character events for tracking boss death
+        CharachterEvents.charachterDamaged += OnCharacterDamaged;
+    }
+
+    private void OnDestroy()
+    {
+        CharachterEvents.charachterDamaged -= OnCharacterDamaged;
     }
 
     void Update()
     {
-        if (!gameOverSequenceStarted && playerDamagable != null && !playerDamagable.IsAlive)
+        // Check for player death
+        if (!endGameSequenceStarted && playerDamagable != null && !playerDamagable.IsAlive)
         {
-            StartGameOverSequence();
+            StartEndGameSequence(false);
         }
     }
 
-    private void StartGameOverSequence()
+    private void OnCharacterDamaged(GameObject character, int damage)
     {
-        gameOverSequenceStarted = true;
-        StartCoroutine(ShowGameOverWithDelay());
+        // Check if this was a boss being killed
+        if (!endGameSequenceStarted && !character.CompareTag("Player"))
+        {
+            WrathBoss boss = character.GetComponent<WrathBoss>();
+            Damagable bossDamagable = character.GetComponent<Damagable>();
+
+            if (boss != null && bossDamagable != null && !bossDamagable.IsAlive)
+            {
+                // Boss died, mark level as completed
+                StartEndGameSequence(true);
+
+                // Notify score manager that boss was killed
+                if (ScoreManager.Instance != null)
+                {
+                    ScoreManager.Instance.EnemyKilled(character);
+                }
+            }
+        }
     }
 
-    private IEnumerator ShowGameOverWithDelay()
+    public void StartEndGameSequence(bool levelCompleted)
     {
-        yield return new WaitForSecondsRealtime(deathDelay);
+        endGameSequenceStarted = true;
+        isLevelCompleted = levelCompleted;
+        StartCoroutine(ShowEndGameWithDelay());
+    }
 
-        if (gameOverPanel != null)
+    private IEnumerator ShowEndGameWithDelay()
+    {
+        yield return new WaitForSecondsRealtime(displayDelay);
+
+        if (endGamePanel != null)
         {
-            gameOverPanel.SetActive(true);
+            endGamePanel.SetActive(true);
 
-            if (gameOverText != null && gameOverTextRect != null)
+            // Set appropriate title text
+            if (titleText != null)
             {
-                gameOverText.color = new Color(gameOverText.color.r, gameOverText.color.g, gameOverText.color.b, 0);
-                gameOverTextRect.localScale = Vector3.one;
+                titleText.text = isLevelCompleted ? "LEVEL COMPLETE" : "GAME OVER";
+                titleText.color = isLevelCompleted ?
+                    new Color(0.1f, 0.8f, 0.2f, 0) :  // Green for complete
+                    new Color(0.8f, 0.1f, 0.1f, 0);   // Red for game over
+            }
+
+            // Update the score UI elements
+            UpdateScoreUI();
+
+            if (titleTextRect != null)
+            {
+                titleTextRect.localScale = Vector3.one;
                 StartCoroutine(BreathingEffect());
+            }
+
+            // Show/hide bonus text based on level completion
+            if (bonusText != null)
+            {
+                bonusText.gameObject.SetActive(isLevelCompleted);
             }
         }
 
         Time.timeScale = 0f;
+    }
+
+    private void UpdateScoreUI()
+    {
+        if (ScoreManager.Instance != null)
+        {
+            if (scoreText != null)
+                scoreText.text = "Score: " + ScoreManager.Instance.GetScore().ToString();
+
+            if (killsText != null)
+                killsText.text = "Enemies Slain: " + ScoreManager.Instance.GetKills().ToString();
+
+            if (timeText != null)
+            {
+                float timeTaken = ScoreManager.Instance.GetTimeTaken();
+                timeText.text = "Time: " + FormatTime(timeTaken);
+            }
+
+            if (bonusText != null && isLevelCompleted)
+                bonusText.text = "Boss Bonus: +2000";
+        }
+    }
+
+    private string FormatTime(float timeInSeconds)
+    {
+        int minutes = Mathf.FloorToInt(timeInSeconds / 60);
+        int seconds = Mathf.FloorToInt(timeInSeconds % 60);
+        return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     private IEnumerator BreathingEffect()
@@ -75,23 +160,23 @@ public class GameOverScreen : MonoBehaviour
         {
             float t = elapsedTime / fadeTime;
 
-            if (gameOverText != null)
+            if (titleText != null)
             {
-                Color textColor = gameOverText.color;
-                gameOverText.color = new Color(textColor.r, textColor.g, textColor.b, t);
+                Color textColor = titleText.color;
+                titleText.color = new Color(textColor.r, textColor.g, textColor.b, t);
             }
 
             float scale = Mathf.Lerp(minScale, maxScale, t);
-            gameOverTextRect.localScale = new Vector3(scale, scale, 1f);
+            titleTextRect.localScale = new Vector3(scale, scale, 1f);
 
             elapsedTime += Time.unscaledDeltaTime;
             yield return null;
         }
 
-        if (gameOverText != null)
+        if (titleText != null)
         {
-            Color textColor = gameOverText.color;
-            gameOverText.color = new Color(textColor.r, textColor.g, textColor.b, 1f);
+            Color textColor = titleText.color;
+            titleText.color = new Color(textColor.r, textColor.g, textColor.b, 1f);
         }
 
         while (true)
@@ -102,7 +187,7 @@ public class GameOverScreen : MonoBehaviour
             {
                 float t = elapsedTime / breatheDuration;
                 float scale = Mathf.Lerp(minScale, maxScale, t);
-                gameOverTextRect.localScale = new Vector3(scale, scale, 1f);
+                titleTextRect.localScale = new Vector3(scale, scale, 1f);
 
                 elapsedTime += Time.unscaledDeltaTime;
                 yield return null;
@@ -114,11 +199,20 @@ public class GameOverScreen : MonoBehaviour
             {
                 float t = elapsedTime / breatheDuration;
                 float scale = Mathf.Lerp(maxScale, minScale, t);
-                gameOverTextRect.localScale = new Vector3(scale, scale, 1f);
+                titleTextRect.localScale = new Vector3(scale, scale, 1f);
 
                 elapsedTime += Time.unscaledDeltaTime;
                 yield return null;
             }
+        }
+    }
+
+    // For simulation/testing
+    public void SimulateEndGame(bool isLevelComplete)
+    {
+        if (!endGameSequenceStarted)
+        {
+            StartEndGameSequence(isLevelComplete);
         }
     }
 }
