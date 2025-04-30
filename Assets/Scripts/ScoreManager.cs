@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -9,14 +10,18 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private int bossKillBonus = 2000;
     [SerializeField] private float timeScoreFactor = 10f;
 
-    // UI references removed as they're now handled by GameOverManager
-
     private int enemiesKilled = 0;
     private int totalScore = 0;
     private float levelStartTime;
     private bool levelActive = true;
 
     public static ScoreManager Instance { get; private set; }
+
+    [Header("Level Settings")]
+    [SerializeField] private string currentLevelId = "LEVEL1"; // Set this in the Unity Inspector for each level
+    [SerializeField] private string nextLevelId = "LEVEL2"; // Set this in the Unity Inspector for each level
+
+    private int currentScore = 0;
 
     private void Awake()
     {
@@ -45,6 +50,8 @@ public class ScoreManager : MonoBehaviour
     public void ResetLevel()
     {
         enemiesKilled = 0;
+        totalScore = 0;
+        currentScore = 0;
         levelStartTime = Time.time;
         levelActive = true;
     }
@@ -55,10 +62,12 @@ public class ScoreManager : MonoBehaviour
 
         enemiesKilled++;
         totalScore += pointsPerKill;
+        currentScore = totalScore;
 
         if (isBoss)
         {
             totalScore += bossKillBonus;
+            currentScore = totalScore;
             CompleteLevel(true);
         }
     }
@@ -75,9 +84,11 @@ public class ScoreManager : MonoBehaviour
 
         levelActive = false;
         totalScore += levelCompletionBonus;
+        currentScore = totalScore;
 
         float timeBonus = CalculateTimeScore();
         totalScore += Mathf.RoundToInt(timeBonus);
+        currentScore = totalScore;
     }
 
     private float CalculateTimeScore()
@@ -142,5 +153,26 @@ public class ScoreManager : MonoBehaviour
     public int GetBossKillBonus()
     {
         return bossKillBonus;
+    }
+
+    public void AddScore(int points)
+    {
+        currentScore += points;
+        totalScore += points;
+    }
+
+    public int GetCurrentScore()
+    {
+        return currentScore;
+    }
+
+    public string GetCurrentLevelId()
+    {
+        return currentLevelId;
+    }
+
+    public string GetNextLevelId()
+    {
+        return nextLevelId;
     }
 }

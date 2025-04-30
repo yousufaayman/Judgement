@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class GlobalRageManager : MonoBehaviour
 {
@@ -72,19 +73,35 @@ public class GlobalRageManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        CharachterEvents.charachterDamaged -= OnCharacterDamaged;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "MainMenu")
+        {
+            ResetRageState();
+        }
+    }
+
+    private void ResetRageState()
+    {
+        GlobalRage = 0f;
+        timeSinceLastRageIncrease = 0f;
+        rageContributionThisFrame = 0f;
+        wrathEnemies.Clear();
     }
 
     private void Start()
     {
         FindAllWrathEnemies();
-
         CharachterEvents.charachterDamaged += OnCharacterDamaged;
-    }
-
-    private void OnDestroy()
-    {
-        CharachterEvents.charachterDamaged -= OnCharacterDamaged;
     }
 
     private void Update()

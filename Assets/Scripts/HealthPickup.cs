@@ -5,6 +5,12 @@ using UnityEngine;
 public class HealthPickup : MonoBehaviour
 {
     public int healthRestore = 20;
+    AudioSource pickupSource;
+
+    private void Awake()
+    {
+        pickupSource = GetComponent<AudioSource>();
+    }
 
     void Start()
     {
@@ -19,6 +25,7 @@ public class HealthPickup : MonoBehaviour
         if (damagable)
         {
             damagable.Heal(healthRestore);
+            AudioSource.PlayClipAtPoint(pickupSource.clip, gameObject.transform.position, pickupSource.volume);
             Destroy(gameObject);
         }
     }

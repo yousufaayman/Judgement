@@ -3,126 +3,101 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Proyecto26;
+using System;
+using System.Text;
 
 public class LoginManager : MonoBehaviour
 {
-    [Header("Login UI Elements")]
+    [Header("UI Elements")]
     [SerializeField] private TMP_InputField usernameField;
     [SerializeField] private TMP_InputField passwordField;
     [SerializeField] private Button loginButton;
     [SerializeField] private Button createAccountButton;
     [SerializeField] private TextMeshProUGUI errorMessageText;
 
-    [Header("Audio")]
-    [SerializeField] private AudioSource loginAudioSource;
-    [SerializeField] private AudioClip buttonClickSound;
-    [SerializeField] private AudioClip errorSound;
-    [SerializeField] private AudioClip successSound;
-
-    private void Awake()
+    private void Start()
     {
         if (errorMessageText != null)
             errorMessageText.gameObject.SetActive(false);
-    }
 
-    private void Start()
-    {
         if (loginButton != null)
             loginButton.onClick.AddListener(AttemptLogin);
 
         if (createAccountButton != null)
             createAccountButton.onClick.AddListener(GoToCreateAccount);
-
-        if (usernameField != null)
-            usernameField.onValueChanged.AddListener(ValidateInput);
-
-        if (passwordField != null)
-            passwordField.onValueChanged.AddListener(ValidateInput);
-
-        if (loginButton != null)
-            loginButton.interactable = false;
-    }
-
-    private void ValidateInput(string text)
-    {
-        if (loginButton != null && usernameField != null && passwordField != null)
-            loginButton.interactable = !string.IsNullOrEmpty(usernameField.text) &&
-                                      !string.IsNullOrEmpty(passwordField.text);
     }
 
     private void AttemptLogin()
     {
-        PlaySound(buttonClickSound);
+        MenuSFXManager.Instance.PlayButtonClick();
 
         if (errorMessageText != null)
             errorMessageText.gameObject.SetActive(false);
 
-        SetUIInteractable(false);
+        string username = usernameField.text;
+        string password = passwordField.text;
 
-        StartCoroutine(LoginCoroutine());
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        {
+            ShowError("Please enter both username and password");
+            MenuSFXManager.Instance.PlayErrorSound();
+            return;
+        }
+
+        LoginData loginData = new LoginData
+        {
+            username = username,
+            password = password
+        };
+
+        RestClient.Post("http://localhost:3000/login", loginData)
+            .Then(response => {
+                try
+                {
+                    var loginResponse = JsonUtility.FromJson<LoginResponse>(response.Text);
+                    UserSession.SetUserData(loginResponse.id.ToString(), loginResponse.id.ToString(), loginResponse.username);
+                    MenuSFXManager.Instance.PlaySuccessSound();
+                    SceneManager.LoadScene("MainMenu");
+                }
+                catch (Exception)
+                {
+                    ShowError("An error occurred during login. Please try again.");
+                    MenuSFXManager.Instance.PlayErrorSound();
+                }
+            })
+            .Catch(error => {
+                ShowError("Invalid username or password");
+                MenuSFXManager.Instance.PlayErrorSound();
+            });
     }
 
-    private IEnumerator LoginCoroutine()
+    private void ShowError(string message)
     {
-        yield return new WaitForSeconds(0.5f);
-
-        bool loginSuccess = (usernameField.text == "test" && passwordField.text == "password");
-
-        if (loginSuccess)
+        if (errorMessageText != null)
         {
-            PlaySound(successSound);
-
-            PlayerPrefs.SetString("LoggedInUser", usernameField.text);
-            PlayerPrefs.Save();
-
-            SceneManager.LoadScene("MainMenu");
-        }
-        else
-        {
-            PlaySound(errorSound);
-
-            if (errorMessageText != null)
-            {
-                errorMessageText.text = "Invalid username or password";
-                errorMessageText.gameObject.SetActive(true);
-            }
-
-            SetUIInteractable(true);
+            errorMessageText.text = message;
+            errorMessageText.gameObject.SetActive(true);
         }
     }
 
     private void GoToCreateAccount()
     {
-        PlaySound(buttonClickSound);
-
+        MenuSFXManager.Instance.PlayButtonClick();
         SceneManager.LoadScene("SignUp");
     }
 
-    private void SetUIInteractable(bool interactable)
+    [System.Serializable]
+    private class LoginData
     {
-        if (usernameField != null)
-            usernameField.interactable = interactable;
-
-        if (passwordField != null)
-            passwordField.interactable = interactable;
-
-        if (loginButton != null)
-            loginButton.interactable = interactable &&
-                                     usernameField != null &&
-                                     passwordField != null &&
-                                     !string.IsNullOrEmpty(usernameField.text) &&
-                                     !string.IsNullOrEmpty(passwordField.text);
-
-        if (createAccountButton != null)
-            createAccountButton.interactable = interactable;
+        public string username;
+        public string password;
     }
 
-    private void PlaySound(AudioClip clip)
+    [System.Serializable]
+    private class LoginResponse
     {
-        if (loginAudioSource != null && clip != null)
-        {
-            loginAudioSource.clip = clip;
-            loginAudioSource.Play();
-        }
+        public int id;
+        public string username;
     }
 }

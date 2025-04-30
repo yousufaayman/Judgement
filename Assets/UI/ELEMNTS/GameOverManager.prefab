@@ -903,13 +903,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 7095410051265463425}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 645b5ba0afd70324bbad7e621e6bbcc1, type: 3}
+  m_Script: {fileID: 11500000, guid: 879c443813cedbb4094e7072aabb8a77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  endGamePanel: {fileID: 2908987245396698416}
+  endGamePanel: {fileID: 0}
   displayDelay: 1.5
-  titleTextRect: {fileID: 8743031280060003775}
-  titleText: {fileID: 1562239842977487067}
-  scoreText: {fileID: 4783580804025763207}
-  restartButton: {fileID: 3296156201081220600}
-  exitButton: {fileID: 4732508657576198282}
+  titleTextRect: {fileID: 0}
+  titleText: {fileID: 0}
+  scoreText: {fileID: 0}
+  restartButton: {fileID: 0}
+  exitButton: {fileID: 0}
+  audioSource: {fileID: 0}
+  gameOverSound: {fileID: 0}

@@ -4,10 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Proyecto26;
+using System;
 
 public class CreateAccountManager : MonoBehaviour
 {
-    [Header("Create Account UI Elements")]
+    [Header("UI Elements")]
     [SerializeField] private TMP_InputField usernameField;
     [SerializeField] private TMP_InputField passwordField;
     [SerializeField] private TMP_InputField confirmPasswordField;
@@ -18,20 +20,11 @@ public class CreateAccountManager : MonoBehaviour
     [Header("Account Requirements")]
     [SerializeField] private int minimumUsernameLength = 6;
 
-    [Header("Audio")]
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip buttonClickSound;
-    [SerializeField] private AudioClip errorSound;
-    [SerializeField] private AudioClip successSound;
-
-    private void Awake()
+    private void Start()
     {
         if (errorMessageText != null)
             errorMessageText.gameObject.SetActive(false);
-    }
 
-    private void Start()
-    {
         if (createAccountButton != null)
             createAccountButton.onClick.AddListener(AttemptCreateAccount);
 
@@ -126,57 +119,53 @@ public class CreateAccountManager : MonoBehaviour
 
     private void AttemptCreateAccount()
     {
-        PlaySound(buttonClickSound);
-
-        if (string.IsNullOrEmpty(usernameField.text))
-        {
-            ShowError("Username is required");
-            return;
-        }
-        else if (usernameField.text.Length < minimumUsernameLength)
-        {
-            ShowError($"Username must be at least {minimumUsernameLength} characters");
-            return;
-        }
-
-        if (!Regex.IsMatch(passwordField.text, "[A-Z]") || !Regex.IsMatch(passwordField.text, "[0-9]"))
-        {
-            ShowError("Password must contain at least one capital letter and one digit");
-            return;
-        }
-
-        if (passwordField.text != confirmPasswordField.text)
-        {
-            ShowError("Passwords do not match");
-            return;
-        }
+        MenuSFXManager.Instance.PlayButtonClick();
 
         if (errorMessageText != null)
             errorMessageText.gameObject.SetActive(false);
 
-        SetUIInteractable(false);
+        string username = usernameField.text;
+        string password = passwordField.text;
+        string confirmPassword = confirmPasswordField.text;
 
-        StartCoroutine(CreateAccountCoroutine());
-    }
-
-    private IEnumerator CreateAccountCoroutine()
-    {
-        yield return new WaitForSeconds(0.5f);
-
-        bool createSuccess = usernameField.text.ToLower() != "admin";
-
-        if (createSuccess)
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
         {
-            PlaySound(successSound);
-            Debug.Log($"Account created: {usernameField.text}");
-            SceneManager.LoadScene("Login");
+            ShowError("Please fill in all fields");
+            MenuSFXManager.Instance.PlayErrorSound();
+            return;
         }
-        else
+
+        if (password != confirmPassword)
         {
-            PlaySound(errorSound);
-            ShowError("Username already exists");
-            SetUIInteractable(true);
+            ShowError("Passwords do not match");
+            MenuSFXManager.Instance.PlayErrorSound();
+            return;
         }
+
+        CreateAccountData accountData = new CreateAccountData
+        {
+            username = username,
+            password = password
+        };
+
+        RestClient.Post("http://localhost:3000/register", accountData)
+            .Then(response => {
+                try
+                {
+                    var createResponse = JsonUtility.FromJson<CreateAccountResponse>(response.Text);
+                    MenuSFXManager.Instance.PlaySuccessSound();
+                    SceneManager.LoadScene("Login");
+                }
+                catch (Exception)
+                {
+                    ShowError("An error occurred during account creation. Please try again.");
+                    MenuSFXManager.Instance.PlayErrorSound();
+                }
+            })
+            .Catch(error => {
+                ShowError("Username already exists");
+                MenuSFXManager.Instance.PlayErrorSound();
+            });
     }
 
     private void ShowError(string message)
@@ -186,58 +175,25 @@ public class CreateAccountManager : MonoBehaviour
             errorMessageText.text = message;
             errorMessageText.gameObject.SetActive(true);
         }
-
-        PlaySound(errorSound);
     }
 
     private void GoBackToLogin()
     {
-        PlaySound(buttonClickSound);
+        MenuSFXManager.Instance.PlayButtonClick();
         SceneManager.LoadScene("Login");
     }
 
-    private void SetUIInteractable(bool interactable)
+    [System.Serializable]
+    private class CreateAccountData
     {
-        if (usernameField != null)
-            usernameField.interactable = interactable;
-
-        if (passwordField != null)
-            passwordField.interactable = interactable;
-
-        if (confirmPasswordField != null)
-            confirmPasswordField.interactable = interactable;
-
-        if (createAccountButton != null)
-            createAccountButton.interactable = interactable && ValidateAllFields();
-
-        if (backButton != null)
-            backButton.interactable = interactable;
+        public string username;
+        public string password;
     }
 
-    private bool ValidateAllFields()
+    [System.Serializable]
+    private class CreateAccountResponse
     {
-        if (usernameField == null || passwordField == null || confirmPasswordField == null)
-            return false;
-
-        bool validUsername = !string.IsNullOrEmpty(usernameField.text) &&
-                            usernameField.text.Length >= minimumUsernameLength;
-
-        bool hasCapital = Regex.IsMatch(passwordField.text, "[A-Z]");
-        bool hasDigit = Regex.IsMatch(passwordField.text, "[0-9]");
-        bool validPassword = !string.IsNullOrEmpty(passwordField.text) && hasCapital && hasDigit;
-
-        bool passwordsMatch = !string.IsNullOrEmpty(confirmPasswordField.text) &&
-                             passwordField.text == confirmPasswordField.text;
-
-        return validUsername && validPassword && passwordsMatch;
-    }
-
-    private void PlaySound(AudioClip clip)
-    {
-        if (audioSource != null && clip != null)
-        {
-            audioSource.clip = clip;
-            audioSource.Play();
-        }
+        public int id;
+        public string username;
     }
 }
