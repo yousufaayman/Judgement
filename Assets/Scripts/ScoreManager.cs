@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System;
+using UnityEngine.SceneManagement;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -22,29 +23,43 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private string nextLevelId = "LEVEL2"; // Set this in the Unity Inspector for each level
 
     private int currentScore = 0;
+    private string currentSceneName;
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
+            return;
         }
+
+        currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == currentSceneName)
+        {
+            ResetLevel();
+        }
+        currentSceneName = scene.name;
+    }
+
+    private void OnDestroy()
+    {
+        CharachterEvents.charachterDamaged -= OnCharacterDamaged;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Start()
     {
         CharachterEvents.charachterDamaged += OnCharacterDamaged;
         ResetLevel();
-    }
-
-    private void OnDestroy()
-    {
-        CharachterEvents.charachterDamaged -= OnCharacterDamaged;
     }
 
     public void ResetLevel()

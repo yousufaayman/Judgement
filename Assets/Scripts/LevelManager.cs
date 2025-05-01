@@ -4,6 +4,7 @@ using TMPro;
 using Proyecto26;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using static UserSession;
 
 public class LevelManager : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        if (!UserSession.IsLoggedIn())
+        if (!IsLoggedIn())
         {
             SceneManager.LoadScene("Login");
             return;
@@ -42,7 +43,7 @@ public class LevelManager : MonoBehaviour
 
     private void LoadUserProgress()
     {
-        string url = $"http://localhost:3000/user/{UserSession.UserId}";
+        string url = $"{API_URL}/user/{UserId}";
         
         RestClient.Get<UserProgress>(url)
             .Then(response => {
@@ -116,6 +117,7 @@ public class LevelManager : MonoBehaviour
     private void SignOut()
     {
         MenuSFXManager.Instance.PlayButtonClick();
+        ClearUserData();
         UserSession.ClearUserData();
         SceneManager.LoadScene("Login");
     }

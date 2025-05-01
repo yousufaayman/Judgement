@@ -5,11 +5,12 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text;
 using System;
+using static UserSession;
 
 public class NetworkManager : MonoBehaviour
 {
     private static NetworkManager _instance;
-    private string serverUrl = "http://localhost:3000";
+    private string serverUrl = API_URL;
 
     public static NetworkManager Instance
     {

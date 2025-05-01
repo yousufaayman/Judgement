@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class UserSession
 {
-    public const string API_URL = "http://localhost:3000";
+    public const string API_URL = "https://judgementbackend-production.up.railway.app";
 
     public static string UserId { get; private set; }
     public static string Token { get; private set; }
