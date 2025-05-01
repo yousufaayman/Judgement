@@ -14,6 +14,7 @@ public class WrathBoss : MonoBehaviour
 
     [Header("Movement")]
     public float moveSpeed = 3f;
+    [SerializeField] private float bufferDistance = 2f; // Minimum distance to maintain from player
 
     // Time warp multipliers
     private float _timeWarpMoveMultiplier = 1f;
@@ -109,8 +110,26 @@ public class WrathBoss : MonoBehaviour
         animator.SetBool(AnimationStrings.canMove, true);
         var col = playerDetectionZone.detectedColliders.Find(c => c.CompareTag("Player"));
         if (col == null) return;
-        Vector2 dir = ((Vector2)col.transform.position - rb.position).normalized;
-        rb.velocity = new Vector2(dir.x * moveSpeed * _timeWarpMoveMultiplier, rb.velocity.y);
+
+        Vector2 playerPos = col.transform.position;
+        Vector2 currentPos = rb.position;
+        Vector2 direction = (playerPos - currentPos).normalized;
+        
+        // Calculate the target position with buffer distance
+        Vector2 targetPos = playerPos - (direction * bufferDistance);
+        
+        // Only move if we're further than the buffer distance
+        float currentDistance = Vector2.Distance(currentPos, playerPos);
+        if (currentDistance > bufferDistance)
+        {
+            Vector2 moveDirection = (targetPos - currentPos).normalized;
+            rb.velocity = new Vector2(moveDirection.x * moveSpeed * _timeWarpMoveMultiplier, rb.velocity.y);
+        }
+        else
+        {
+            // Stop moving if we're within the buffer distance
+            rb.velocity = new Vector2(0, rb.velocity.y);
+        }
     }
 
     void Patrol()

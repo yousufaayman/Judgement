@@ -422,6 +422,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  healthChanged:
+    m_PersistentCalls:
+      m_Calls: []
   _maxHealth: 150
   _health: 150
   _isAlive: 1
@@ -444,6 +447,7 @@ MonoBehaviour:
   cliffDetectionZone: {fileID: 5002823166949764858}
   attackCooldown: 1.5
   moveSpeed: 2
+  bufferDistance: 1
 --- !u!1 &5121186315713883176
 GameObject:
   m_ObjectHideFlags: 0
