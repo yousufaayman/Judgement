@@ -148,7 +148,7 @@ public class CreateAccountManager : MonoBehaviour
             password = password
         };
 
-        RestClient.Post("http://localhost:3000/register", accountData)
+        RestClient.Post($"{UserSession.API_URL}/register", accountData)
             .Then(response => {
                 try
                 {

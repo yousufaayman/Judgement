@@ -2559,8 +2559,7 @@ MonoBehaviour:
   menuTheme: {fileID: 8300000, guid: 2e7631dc61c4fc44989930d2150f64c0, type: 3}
   gameScenes:
   - Wrath
-  - LEVEL2
-  - LEVEL3
+  - Sloth
 --- !u!82 &1817446221
 AudioSource:
   m_ObjectHideFlags: 0

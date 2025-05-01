@@ -51,7 +51,7 @@ public class LoginManager : MonoBehaviour
             password = password
         };
 
-        RestClient.Post("http://localhost:3000/login", loginData)
+        RestClient.Post($"{UserSession.API_URL}/login", loginData)
             .Then(response => {
                 try
                 {

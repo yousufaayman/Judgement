@@ -13,6 +13,11 @@ public class PlayerController : MonoBehaviour
     public float jumpImpulse = 10f;
     public float airWalkSpeed = 3f;
 
+    // Time warp multipliers
+    private float _timeWarpWalkMultiplier = 1f;
+    private float _timeWarpRunMultiplier = 1f;
+    private float _timeWarpJumpMultiplier = 1f;
+
     private Vector2 moveInput;
     private bool isGrounded;
     private bool jumpPressed;
@@ -71,11 +76,11 @@ public class PlayerController : MonoBehaviour
                     {
                         if (IsRunning)
                         {
-                            return runSpeed;
+                            return runSpeed * _timeWarpRunMultiplier;
                         }
                         else
                         {
-                            return walkSpeed;
+                            return walkSpeed * _timeWarpWalkMultiplier;
                         }
                     }
                     else
@@ -85,14 +90,13 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    return airWalkSpeed;
+                    return airWalkSpeed * _timeWarpWalkMultiplier;
                 }
             }
             else
             {
                 return 0;
             }
-
         }
     }
 
@@ -189,7 +193,7 @@ public class PlayerController : MonoBehaviour
         if (context.started && touchingDirections.IsGrounded && CanMove)
         {
             animator.SetTrigger(AnimationStrings.jumpTrigger);
-            rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
+            rb.velocity = new Vector2(rb.velocity.x, jumpImpulse * _timeWarpJumpMultiplier);
         }
     }
 
@@ -205,4 +209,17 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
     }
 
+    public void ApplyTimeWarp(float walkMultiplier, float runMultiplier, float jumpMultiplier)
+    {
+        _timeWarpWalkMultiplier = walkMultiplier;
+        _timeWarpRunMultiplier = runMultiplier;
+        _timeWarpJumpMultiplier = jumpMultiplier;
+    }
+
+    public void ResetTimeWarp()
+    {
+        _timeWarpWalkMultiplier = 1f;
+        _timeWarpRunMultiplier = 1f;
+        _timeWarpJumpMultiplier = 1f;
+    }
 }

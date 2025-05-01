@@ -29,6 +29,7 @@ public class GameOverManager : MonoBehaviour
 
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip gameOverSound;
+    [SerializeField] private AudioClip levelCompleteSound;
 
     private void Start()
     {
@@ -48,11 +49,6 @@ public class GameOverManager : MonoBehaviour
         CharachterEvents.charachterDamaged += OnCharacterDamaged;
 
         SetupButtons();
-
-        if (audioSource != null && gameOverSound != null)
-        {
-            audioSource.PlayOneShot(gameOverSound);
-        }
     }
 
     private void SetupButtons()
@@ -135,6 +131,18 @@ public class GameOverManager : MonoBehaviour
         {
             endGamePanel.SetActive(true);
 
+            if (audioSource != null)
+            {
+                if (isLevelCompleted && levelCompleteSound != null)
+                {
+                    audioSource.PlayOneShot(levelCompleteSound);
+                }
+                else if (!isLevelCompleted && gameOverSound != null)
+                {
+                    audioSource.PlayOneShot(gameOverSound);
+                }
+            }
+
             if (titleText != null)
             {
                 titleText.text = isLevelCompleted ? "LEVEL COMPLETE" : "GAME OVER";
@@ -150,7 +158,6 @@ public class GameOverManager : MonoBehaviour
                 titleTextRect.localScale = Vector3.one;
                 StartCoroutine(BreathingEffect());
             }
-
         }
 
         StoreGameData();

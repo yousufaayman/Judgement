@@ -15,6 +15,10 @@ public class WrathBoss : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 3f;
 
+    // Time warp multipliers
+    private float _timeWarpMoveMultiplier = 1f;
+    private float _timeWarpAttackMultiplier = 1f;
+
     private Rigidbody2D rb;
     private Animator animator;
     private TouchingDirections touchingDirections;
@@ -90,13 +94,13 @@ public class WrathBoss : MonoBehaviour
         animator.SetTrigger(AnimationStrings.attackTrigger);
         
         // Wait for the initial hit to land (assuming it's about 0.2 seconds into the animation)
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.2f * _timeWarpAttackMultiplier);
         
         // Set the cooldown after the initial hit
-        AttackCooldown = attackCooldown;
+        AttackCooldown = attackCooldown * _timeWarpAttackMultiplier;
         
         // Wait for the remaining cooldown time
-        yield return new WaitForSeconds(attackCooldown - 0.2f);
+        yield return new WaitForSeconds((attackCooldown - 0.2f) * _timeWarpAttackMultiplier);
         isAttacking = false;
     }
 
@@ -106,14 +110,14 @@ public class WrathBoss : MonoBehaviour
         var col = playerDetectionZone.detectedColliders.Find(c => c.CompareTag("Player"));
         if (col == null) return;
         Vector2 dir = ((Vector2)col.transform.position - rb.position).normalized;
-        rb.velocity = new Vector2(dir.x * moveSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(dir.x * moveSpeed * _timeWarpMoveMultiplier, rb.velocity.y);
     }
 
     void Patrol()
     {
         animator.SetBool(AnimationStrings.canMove, true);
         float dir = transform.localScale.x > 0 ? 1f : -1f;
-        rb.velocity = new Vector2(dir * moveSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(dir * moveSpeed * _timeWarpMoveMultiplier, rb.velocity.y);
     }
 
     void FacePlayer()
@@ -135,5 +139,18 @@ public class WrathBoss : MonoBehaviour
         Vector3 s = transform.localScale;
         s.x *= -1;
         transform.localScale = s;
+    }
+
+    // Time warp methods
+    public void ApplyTimeWarp(float moveMultiplier, float attackMultiplier)
+    {
+        _timeWarpMoveMultiplier = moveMultiplier;
+        _timeWarpAttackMultiplier = attackMultiplier;
+    }
+
+    public void ResetTimeWarp()
+    {
+        _timeWarpMoveMultiplier = 1f;
+        _timeWarpAttackMultiplier = 1f;
     }
 }
