@@ -222,4 +222,34 @@ public class PlayerController : MonoBehaviour
         _timeWarpRunMultiplier = 1f;
         _timeWarpJumpMultiplier = 1f;
     }
+
+    public void ReceiveMobileMove(Vector2 input)
+    {
+        moveInput = input;
+        if (IsAlive)
+        {
+            IsMoving = moveInput != Vector2.zero;
+            SetFacingDirection(moveInput);
+        }
+        else
+        {
+            IsMoving = false;
+        }
+    }
+
+    public void ReceiveMobileJump()
+    {
+        if (touchingDirections.IsGrounded && CanMove)
+        {
+            animator.SetTrigger(AnimationStrings.jumpTrigger);
+            rb.velocity = new Vector2(rb.velocity.x, jumpImpulse * _timeWarpJumpMultiplier);
+        }
+    }
+
+    public void ReceiveMobileAttack()
+    {
+        animator.SetTrigger(AnimationStrings.attackTrigger);
+    }
+
 }
+

@@ -13247,6 +13247,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8658310829550255554, guid: 7b52b93ce5410c148a4fd6ffee145e14, type: 3}
   m_PrefabInstance: {fileID: 757607805}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &778519023 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7150287765086052866, guid: ab1583f5c146ce94f8120989bce0c0a2, type: 3}
+  m_PrefabInstance: {fileID: 1840102148}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9f7070e075ec64f8214044853eb299, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &783877559
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -104134,6 +104145,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MainCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 2249234000845219096, guid: d21912fd1473adf4fb4238c95c1eb9b4, type: 3}
+      propertyPath: playerController
+      value: 
+      objectReference: {fileID: 778519023}
     - target: {fileID: 6886786578094353244, guid: d21912fd1473adf4fb4238c95c1eb9b4, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0

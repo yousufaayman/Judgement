@@ -2015,7 +2015,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -85.67581, y: 5.1543226, z: -7.4933395}
+  m_LocalPosition: {x: -85.60427, y: 5.153394, z: -7.4933395}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5446,6 +5446,17 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
+--- !u!114 &912430331 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7150287765086052866, guid: ab1583f5c146ce94f8120989bce0c0a2, type: 3}
+  m_PrefabInstance: {fileID: 1840102148}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9f7070e075ec64f8214044853eb299, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &952087322 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3626727687966270048, guid: 1750a79856555ef4eabd51ea7a826879, type: 3}
@@ -9397,6 +9408,14 @@ PrefabInstance:
     - target: {fileID: 70423631492416696, guid: d21912fd1473adf4fb4238c95c1eb9b4, type: 3}
       propertyPath: m_Name
       value: MainCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 2249234000845219096, guid: d21912fd1473adf4fb4238c95c1eb9b4, type: 3}
+      propertyPath: playerController
+      value: 
+      objectReference: {fileID: 912430331}
+    - target: {fileID: 6281804200399778807, guid: d21912fd1473adf4fb4238c95c1eb9b4, type: 3}
+      propertyPath: m_ScreenMatchMode
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6886786578094353244, guid: d21912fd1473adf4fb4238c95c1eb9b4, type: 3}
       propertyPath: m_AnchorMax.x
