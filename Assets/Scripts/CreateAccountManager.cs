@@ -182,18 +182,4 @@ public class CreateAccountManager : MonoBehaviour
         MenuSFXManager.Instance.PlayButtonClick();
         SceneManager.LoadScene("Login");
     }
-
-    [System.Serializable]
-    private class CreateAccountData
-    {
-        public string username;
-        public string password;
-    }
-
-    [System.Serializable]
-    private class CreateAccountResponse
-    {
-        public int id;
-        public string username;
-    }
 }
